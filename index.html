@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1824">
+  <meta name="description" content="MREx25 – Matriz de Riscos: visual personalizado para Power BI que aproxima auditoria baseada em riscos, dados e tomada de decisão.">
+  <meta property="og:title" content="MREx25 – Matriz de Riscos | MVS">
+  <meta property="og:description" content="Visibilidade executiva sobre processos, exposição financeira, riscos e controles no Power BI.">
+  <meta property="og:type" content="website">
+  <title>MREx25 – Matriz de Riscos | MVS</title>
+  <style>
+    :root { --navy:#0b1824; --navy2:#132637; --ink:#112334; --muted:#5d7180; --line:#dde7e9; --off:#f4f8f8; --white:#fff; --green:#0f9f78; --green-dark:#087e62; --mint:#ddf6ea; --gold:#e9b63b; --red:#e44949; --shadow:0 24px 65px rgba(19,47,52,.10); }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+    body { margin:0; font: 15.5px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; color:var(--ink); background:var(--white); }
+    a { color:inherit; text-decoration:none; }
+    button { font:inherit; }
+    a:focus-visible, button:focus-visible { outline:3px solid #62dfb5; outline-offset:3px; }
+    button { cursor:pointer; }
+    .container { width:min(1160px, calc(100% - 48px)); margin:0 auto; }
+    .skip { position:absolute; top:-100px; left:12px; z-index:100; padding:10px 16px; background:#fff; color:#111; }
+    .skip:focus { top:10px; }
+    .site-header { position:sticky; top:0; z-index:50; background:rgba(9,25,35,.97); border-bottom:1px solid rgba(255,255,255,.12); backdrop-filter:blur(12px); }
+    .nav { display:flex; min-height:78px; align-items:center; justify-content:space-between; gap:20px; }
+    .brand { display:flex; align-items:center; gap:12px; color:#fff; white-space:nowrap; }
+    .brand-mark { display:grid; place-items:center; width:45px; height:45px; font-size:14px; font-weight:900; letter-spacing:-.8px; border:1px solid rgba(168,255,221,.30); color:#b9ffe1; background:linear-gradient(145deg,#163b41,#0d795b); border-radius:13px; }
+    .brand-text { display:flex; flex-direction:column; line-height:1.2; }
+    .brand-text strong { font-size:17px; letter-spacing:.4px; }
+    .brand-text small { font-size:10px; color:#b3c9ca; letter-spacing:1.8px; text-transform:uppercase; }
+    .nav-links { display:flex; align-items:center; gap:26px; font-size:13px; font-weight:650; color:#cbd8dc; }
+    .nav-links a:hover { color:#fff; }
+    .button { display:inline-flex; justify-content:center; align-items:center; gap:9px; padding:13px 20px; border-radius:10px; background:var(--green); color:#fff; border:1px solid var(--green); font-size:13px; font-weight:800; line-height:1.25; transition:transform .18s ease, background .18s ease, box-shadow .18s ease; }
+    .button:hover { background:#0b8768; border-color:#0b8768; transform:translateY(-1px); box-shadow:0 9px 18px #00392427; }
+    .button.secondary { background:transparent; color:#effff9; border-color:#526875; }
+    .button.secondary:hover { background:#ffffff15; border-color:#91c5b7; box-shadow:none; }
+    .button.outline-dark { background:#fff; border-color:#b9d5ca; color:#087257; }
+    .button.outline-dark:hover { background:#effbf6; box-shadow:none; }
+    .mobile-menu { display:none; padding:10px; border:1px solid #46606b; border-radius:8px; background:none; color:white; font-size:23px; line-height:1; }
+    .hero { position:relative; overflow:hidden; padding:84px 0 85px; color:#fff; background:radial-gradient(ellipse at 78% 20%,rgba(15,177,120,.20),transparent 40%),linear-gradient(118deg,#0a1b28 15%,#152b3a 65%,#0b302f); }
+    .hero::after { content:""; position:absolute; pointer-events:none; inset:0; opacity:.10; background-image:linear-gradient(#b8fff1 1px,transparent 1px),linear-gradient(90deg,#b8fff1 1px,transparent 1px); background-size:44px 44px; mask-image:linear-gradient(90deg,transparent 40%,#000 100%); }
+    .hero-inner { display:grid; position:relative; z-index:1; grid-template-columns:1fr .9fr; gap:60px; align-items:center; }
+    .eyebrow { display:inline-flex; align-items:center; gap:9px; font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:1.9px; }
+    .eyebrow .circle { background:#32d49f; width:8px; height:8px; border-radius:50%; box-shadow:0 0 0 4px #32d49f28; }
+    .hero .eyebrow { color:#a9edce; }
+    h1,h2,h3,h4,p { margin-top:0; }
+    h1 { font-size:clamp(40px,5.15vw,68px); line-height:1.07; letter-spacing:-2.9px; margin:22px 0 24px; font-weight:820; }
+    h1 em { color:#6fe0b5; font-style:normal; }
+    .hero-lead { max-width:590px; color:#c2d6d8; font-size:17px; line-height:1.75; }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:13px; margin-top:32px; }
+    .hero-meta { display:flex; flex-wrap:wrap; gap:16px; margin-top:28px; font-size:12px; color:#b7c9cc; }
+    .hero-meta span::before { content:"✓"; color:#7ae2b7; font-weight:900; margin-right:7px; }
+    .hero-graphic { position:relative; background:#f8fcfb; color:#18323a; border:1px solid #6b9d95; border-radius:19px; padding:22px; box-shadow:0 38px 70px #0005; transform:rotate(1.5deg); }
+    .top-browser { display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #dbe7e5; padding-bottom:14px; margin-bottom:18px; font-size:11px; font-weight:800; color:#46636c; }
+    .browser-dots { display:flex; gap:5px; }
+    .browser-dots i { display:block; width:8px; height:8px; border-radius:50%; background:#c3d4d0; }
+    .hero-chart-title { font-size:11px; font-weight:800; margin-bottom:16px; }
+    .hero-chart-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:3px; border:1px solid #cad9d5; background:#fff; }
+    .mini-cell { height:57px; position:relative; }
+    .mini-cell.green,.risk-cell.green { background:#08ae60; }
+    .mini-cell.yellow,.risk-cell.yellow { background:#ffe625; }
+    .mini-cell.red,.risk-cell.red { background:#fb242e; }
+    .mini-cell.darkred,.risk-cell.darkred { background:#c4090d; }
+    .mini-bubble { display:grid; place-items:center; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:29px; height:29px; border:2px solid white; border-radius:50%; font-weight:900; font-size:11px; color:white; background:#aa1525; }
+    .mini-bubble.gold { background:#94b023; }
+    .mini-bubble.orange { background:#eb6031; }
+    .hero-chart-foot { display:flex; justify-content:space-between; gap:12px; color:#53716d; font-size:10px; margin-top:13px; }
+    .mini-stat { display:flex; align-items:baseline; gap:9px; padding:12px 0 0; border-top:1px solid #dfeae7; margin-top:16px; }
+    .mini-stat strong { color:var(--green-dark); font-size:22px; }
+    .mini-stat small { color:var(--muted); font-size:11px; }
+    .hero-stamp { position:absolute; right:-12px; bottom:-21px; font-size:11px; font-weight:800; padding:11px 14px; color:#073a2b; background:#b4f4d6; border-radius:10px; box-shadow:0 10px 25px #0002; transform:rotate(-1.5deg); }
+    .status-band { background:#e7f7ef; border-bottom:1px solid #c9eadb; }
+    .status-inner { padding:13px 0; display:flex; align-items:center; gap:10px; color:#235e4e; font-size:12px; }
+    .status-chip { background:#c5edda; color:#086944; padding:4px 9px; border-radius:30px; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:.5px; white-space:nowrap; }
+    .section { padding:95px 0; }
+    .section.light { background:#f3f7f7; }
+    .section-head { max-width:750px; margin-bottom:35px; }
+    .overline { font-size:11px; letter-spacing:2px; text-transform:uppercase; font-weight:900; color:#087a5a; margin-bottom:12px; }
+    h2 { font-size:clamp(30px,3.4vw,43px); line-height:1.18; letter-spacing:-1.3px; margin:0 0 15px; }
+    .section-lead { color:var(--muted); font-size:16px; }
+    .value-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    .value-card { border:1px solid var(--line); border-radius:15px; padding:27px 25px 23px; background:#fff; box-shadow:0 8px 30px #0b43450a; }
+    .value-card .number { display:grid; place-items:center; width:43px; height:43px; border-radius:11px; background:#dcf5e9; color:#097d5a; font-weight:900; font-size:18px; margin-bottom:18px; }
+    h3 { font-size:19px; letter-spacing:-.4px; margin-bottom:10px; }
+    .value-card p, .feature p, .step p { color:var(--muted); font-size:13px; margin-bottom:0; }
+    .demo-board { background:#fff; border:1px solid #dae7e5; border-radius:20px; padding:28px; box-shadow:var(--shadow); }
+    .demo-header { display:flex; justify-content:space-between; gap:15px; align-items:flex-start; margin-bottom:23px; }
+    .demo-header h3 { font-size:22px; margin:0 0 3px; }
+    .demo-header p { margin:0; color:var(--muted); font-size:12px; }
+    .tag { display:inline-flex; border:1px solid #b4d7cc; background:#eaf7f1; color:#087956; padding:7px 10px; border-radius:30px; font-size:11px; font-weight:850; white-space:nowrap; }
+    .demo-body { display:grid; grid-template-columns:minmax(0,1.48fr) minmax(275px,0.9fr); gap:24px; }
+    .heatmap-card { background:#fff; border:1px solid #e0e7e9; border-radius:12px; padding:22px 24px 18px; }
+    .legend { display:flex; flex-wrap:wrap; align-items:center; gap:12px; font-size:10px; margin-bottom:24px; }
+    .legend b { margin-right:4px; }
+    .legend span { display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+    .dot { display:inline-block; height:9px; width:9px; border-radius:50%; }
+    .dot.effective { background:#05ae69; }
+    .dot.partial { background:#f3d100; }
+    .dot.ineffective { background:#ee3b43; }
+    .heatmap-wrap { display:grid; grid-template-columns:24px 68px minmax(0,1fr); gap:7px; align-items:stretch; }
+    .axis-y { writing-mode:vertical-rl; transform:rotate(180deg); display:grid; place-items:center; font-size:11px; font-weight:900; letter-spacing:1px; }
+    .rows-labels { display:grid; grid-template-rows:repeat(5,1fr); text-align:right; font-size:10px; color:#31424d; align-items:center; }
+    .risk-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); grid-template-rows:repeat(5,63px); gap:2px; border:2px solid #324d55; background:#324d55; }
+    .risk-cell { position:relative; border:0; border-radius:0; padding:0; min-width:0; display:flex; align-items:center; justify-content:center; transition:filter .15s ease; }
+    .risk-cell:hover { filter:brightness(1.11); }
+    .risk-cell:focus-visible { outline:3px solid #112232; outline-offset:-5px; }
+    .risk-point { border-radius:50%; width:38px; height:38px; display:grid; place-items:center; background:#f2c63b; border:3px solid #fff; color:#16262b; font-size:12px; font-weight:900; box-shadow:0 3px 14px #0002; transition:transform .15s ease; }
+    .risk-cell:hover .risk-point { transform:scale(1.12); }
+    .risk-point.efetivo { background:#0dbb74; color:white; }
+    .risk-point.parcial { background:#f6db34; color:#2e3217; }
+    .risk-point.ineficiente { background:#e33b3c; color:white; }
+    .risk-cell.selected .risk-point { outline:4px solid #fff; outline-offset:1px; box-shadow:0 0 0 8px rgba(21,34,46,.30); transform:scale(1.03); }
+    .axis-x-labels { display:grid; grid-template-columns:24px 68px repeat(5,minmax(0,1fr)); gap:7px; margin-top:8px; font-size:10px; text-align:center; }
+    .axis-x { text-align:center; font-size:11px; font-weight:900; margin:6px 0 0; letter-spacing:.7px; }
+    .process-list { margin:18px 0 0; padding:14px 0 0; border-top:1px solid var(--line); list-style:none; display:grid; gap:2px; }
+    .process-list button { display:flex; gap:7px; align-items:center; width:100%; border:0; text-align:left; padding:6px 8px; background:none; color:#617481; font-size:11px; border-radius:7px; }
+    .process-list button:hover { background:#eaf5f1; color:#0b4738; }
+    .process-list button.active { color:#064f3b; font-weight:900; background:#e5f7ee; }
+    .detail-panel { background:#f6f8f9; border:1px solid #e1e7e8; border-radius:12px; padding:15px; }
+    .detail-title { text-transform:uppercase; text-align:center; font-weight:900; font-size:11px; letter-spacing:.5px; margin-bottom:12px; }
+    .process-name { background:#fff; border:1px solid #e3e9ec; border-radius:9px; padding:13px 8px; text-align:center; font-weight:850; font-size:13px; margin-bottom:11px; min-height:49px; }
+    .stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+    .stat { min-height:87px; border-radius:10px; background:#fff; border:1px solid #e3e9ed; display:flex; align-items:center; justify-content:center; flex-direction:column; padding:11px 5px; text-align:center; gap:4px; }
+    .stat span { color:#657684; font-size:9px; text-transform:uppercase; font-weight:700; letter-spacing:.3px; }
+    .stat strong { font-size:14px; color:#172b36; overflow-wrap:anywhere; }
+    .stat.critical { background:#b90913; border-color:#b90913; }
+    .stat.critical span, .stat.critical strong { color:#fff; }
+    .stat.attention { background:#faecca; border-color:#e9d6a2; }
+    .stat.attention strong { color:#725410; }
+    .stat.control-bad { background:#e94148; border-color:#e94148; }
+    .stat.control-bad span, .stat.control-bad strong { color:#fff; }
+    .demo-note { font-size:11px; color:#607581; line-height:1.6; margin:15px 0 0; }
+    .field-wrap { display:flex; flex-wrap:wrap; gap:9px; margin-top:20px; }
+    .field { display:inline-block; padding:8px 11px; border-radius:8px; border:1px solid #cbded9; background:#fff; font-weight:650; font-size:11px; color:#34585a; }
+    .field.required { background:#dff5e9; border-color:#acd8c3; color:#166c4b; }
+    .section-split { display:grid; grid-template-columns:.92fr 1.08fr; gap:64px; align-items:center; }
+    .workflow { display:grid; gap:12px; }
+    .step { display:flex; gap:15px; padding:18px 18px; border:1px solid var(--line); border-radius:12px; background:#fff; }
+    .step-index { flex:0 0 38px; height:38px; background:#e1f5ea; color:#0d795b; display:grid; place-items:center; border-radius:10px; font-size:12px; font-weight:900; }
+    .step h3 { margin-bottom:4px; font-size:15px; }
+    .note { border-left:3px solid #14a37c; background:#ebf8f2; padding:13px 16px; font-size:12px; color:#466457; margin-top:20px; border-radius:0 10px 10px 0; }
+    .two-col { display:grid; grid-template-columns:repeat(2,1fr); gap:18px; }
+    .feature { border:1px solid var(--line); border-radius:13px; padding:22px; background:#fff; }
+    .feature-icon { width:38px; height:38px; border-radius:10px; background:#e2f3ea; color:#057455; display:grid; place-items:center; font-weight:850; margin-bottom:13px; }
+    .feature h3 { font-size:15px; margin:0 0 8px; }
+    .cta { background:#0b1c27; color:white; border-radius:19px; padding:42px 46px; display:flex; justify-content:space-between; align-items:center; gap:30px; position:relative; overflow:hidden; }
+    .cta::after { content:""; position:absolute; width:280px; height:280px; right:-70px; bottom:-180px; border:45px solid #1eb98f25; border-radius:50%; pointer-events:none; }
+    .cta h2 { font-size:32px; margin:0 0 10px; }
+    .cta p { max-width:690px; color:#bfcfd2; margin:0; font-size:14px; }
+    .cta .button { position:relative; z-index:1; white-space:nowrap; }
+    .contact-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+    .contact-card { border:1px solid var(--line); border-radius:13px; padding:20px; }
+    .contact-card .mini { font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.7px; }
+    .contact-card h3 { margin:7px 0; font-size:16px; }
+    .contact-card p { font-size:12px; color:#617480; margin:0; }
+    .textlink { color:#0a8061; font-weight:800; text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:3px; }
+    footer { background:#0a1b26; color:#c1d2d5; padding:34px 0; }
+    .footer-row { display:flex; align-items:center; justify-content:space-between; gap:20px; font-size:12px; }
+    .footer-row strong { color:#fff; }
+    .footer-row .footer-links { display:flex; gap:18px; }
+    .footer-row a:hover { color:#6fe0b5; }
+    @media (max-width:1080px) { .hero-inner { gap:30px; } .demo-body { grid-template-columns:1fr; } .risk-grid { grid-template-rows:repeat(5,70px); } .detail-panel { max-width:none; } .section-split { gap:30px; } }
+    @media (max-width:760px) {
+      .container { width:min(100% - 32px, 550px); }
+      .nav { min-height:68px; } .mobile-menu { display:block; }
+      .nav-links { display:none; flex-direction:column; align-items:stretch; position:absolute; top:68px; left:0; right:0; background:#0b1a26; padding:18px 22px 25px; border-bottom:1px solid #40605c; gap:16px; }
+      .nav-links.open { display:flex; } .nav-links .button { align-self:flex-start; }
+      .hero { padding:64px 0 60px; } .hero-inner { grid-template-columns:1fr; gap:48px; } h1 { font-size:clamp(40px,10.5vw,56px); letter-spacing:-2px; } .hero-graphic { max-width:570px; margin:0 12px 0 0; }
+      .section { padding:65px 0; } .value-grid,.section-split,.contact-grid { grid-template-columns:1fr; } .two-col { grid-template-columns:1fr; }
+      .demo-board { padding:13px; } .heatmap-card { padding:16px 8px; } .heatmap-wrap { grid-template-columns:17px 59px minmax(0,1fr); gap:4px; } .risk-grid { grid-template-rows:repeat(5,52px); } .axis-x-labels { grid-template-columns:17px 59px repeat(5,minmax(0,1fr)); gap:4px; font-size:8px; } .risk-point { width:29px; height:29px; border-width:2px; font-size:10px; } .legend { gap:8px; } .demo-header { flex-wrap:wrap; } .stats { gap:8px; }
+      .cta { flex-direction:column; align-items:flex-start; padding:30px; } .cta h2 { font-size:28px; }
+      .footer-row { flex-direction:column; align-items:flex-start; }
+    }
+    @media (max-width:390px) { .risk-grid { grid-template-rows:repeat(5,45px); } .risk-point { width:25px; height:25px; font-size:9px; } .rows-labels { font-size:8px; } .axis-x-labels { font-size:7px; } .demo-header h3 { font-size:19px; } .hero-chart-grid .mini-cell { height:43px; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition:none!important; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#conteudo">Pular para o conteúdo</a>
+  <header class="site-header">
+    <nav class="nav container" aria-label="Navegação principal">
+      <a class="brand" href="#inicio" aria-label="MVS – Página inicial">
+        <span class="brand-mark" aria-hidden="true">MVS</span>
+        <span class="brand-text"><strong>MREx25</strong><small>Matriz de Riscos</small></span>
+      </a>
+      <button type="button" class="mobile-menu" id="mobile-menu" aria-expanded="false" aria-controls="nav-links" aria-label="Abrir menu">☰</button>
+      <div class="nav-links" id="nav-links">
+        <a href="#produto">O produto</a>
+        <a href="#demonstracao">Demonstração</a>
+        <a href="#metodologia">Metodologia</a>
+        <a href="#funcionalidades">Funcionalidades</a>
+        <a href="#contato" class="button">Contato e suporte <span aria-hidden="true">↗</span></a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="conteudo">
+    <section class="hero" id="inicio" aria-labelledby="hero-title">
+      <div class="container hero-inner">
+        <div>
+          <div class="eyebrow"><span class="circle"></span> MVS · Inteligência em riscos e auditoria</div>
+          <h1 id="hero-title">Dos dados à <em>visão de riscos.</em></h1>
+          <p class="hero-lead"><strong>MREx25 – Matriz de Riscos</strong> é um visual personalizado para Microsoft Power BI, desenvolvido para apresentar, em uma única visão, criticidade dos processos, exposição financeira e efetividade dos controles.</p>
+          <div class="hero-actions">
+            <a class="button" href="#demonstracao">Explorar a matriz <span aria-hidden="true">↗</span></a>
+            <a class="button secondary" href="#metodologia">Como os dados se conectam <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="hero-meta"><span>Foco em auditoria baseada em riscos</span><span>Desenvolvido para Power BI</span></div>
+        </div>
+        <div class="hero-graphic" aria-label="Representação ilustrativa da matriz 5 por 5 do MREx25">
+          <div class="top-browser"><span class="browser-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>MREx25 / VISÃO DE RISCOS</span><span>● LIVE PREVIEW</span></div>
+          <div class="hero-chart-title">Probabilidade × Impacto</div>
+          <div class="hero-chart-grid" aria-hidden="true">
+            <div class="mini-cell green"></div><div class="mini-cell yellow"></div><div class="mini-cell red"></div><div class="mini-cell darkred"><span class="mini-bubble">5</span></div><div class="mini-cell darkred"></div>
+            <div class="mini-cell green"></div><div class="mini-cell yellow"></div><div class="mini-cell red"></div><div class="mini-cell red"></div><div class="mini-cell darkred"><span class="mini-bubble orange">3</span></div>
+            <div class="mini-cell green"></div><div class="mini-cell yellow"></div><div class="mini-cell yellow"><span class="mini-bubble gold">4</span></div><div class="mini-cell red"></div><div class="mini-cell red"><span class="mini-bubble orange">1</span></div>
+            <div class="mini-cell green"></div><div class="mini-cell green"></div><div class="mini-cell yellow"><span class="mini-bubble gold">2</span></div><div class="mini-cell yellow"></div><div class="mini-cell yellow"></div>
+            <div class="mini-cell green"></div><div class="mini-cell green"></div><div class="mini-cell green"></div><div class="mini-cell yellow"></div><div class="mini-cell yellow"></div>
+          </div>
+          <div class="hero-chart-foot"><span>PROBABILIDADE ↑</span><span>IMPACTO →</span></div>
+          <div class="mini-stat"><strong>5 × 5</strong><small>leitura visual de probabilidade e impacto</small></div>
+          <div class="hero-stamp">Auditoria orientada a evidências</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="status-band"><div class="status-inner container"><span class="status-chip">Em desenvolvimento</span><span>Site de apresentação do produto. A demonstração abaixo usa dados fictícios e não substitui o visual executado no Power BI.</span></div></div>
+
+    <section class="section" id="produto" aria-labelledby="produto-title">
+      <div class="container">
+        <div class="section-head"><p class="overline">O produto</p><h2 id="produto-title">A matriz de riscos como instrumento de gestão.</h2><p class="section-lead">O MREx25 transforma informações estruturadas de processos, controles e auditorias em uma leitura visual para priorização, acompanhamento e comunicação executiva.</p></div>
+        <div class="value-grid">
+          <article class="value-card"><span class="number">01</span><h3>Priorização por criticidade</h3><p>Posicionamento dos processos conforme probabilidade e impacto, permitindo identificar concentrações de risco e direcionar discussões de governança.</p></article>
+          <article class="value-card"><span class="number">02</span><h3>Visão dos controles</h3><p>Diferenciação visual da efetividade dos controles e apresentação de indicadores relevantes para a avaliação do ambiente de controle.</p></article>
+          <article class="value-card"><span class="number">03</span><h3>Exposição e acompanhamento</h3><p>Contextualização com exposição financeira, apontamentos, evolução dos planos de ação, responsável e data da última auditoria.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section light" id="demonstracao" aria-labelledby="demo-title">
+      <div class="container">
+        <div class="section-head"><p class="overline">Demonstração interativa</p><h2 id="demo-title">Explore a matriz de riscos.</h2><p class="section-lead">Clique em uma bolha ou selecione um processo na lista. O painel apresenta indicadores do processo escolhido. Os dados desta página são exclusivamente fictícios.</p></div>
+        <div class="demo-board">
+          <div class="demo-header"><div><h3>Matriz de Riscos 5 × 5</h3><p>Efetividade dos controles · Probabilidade · Impacto</p></div><span class="tag">AMBIENTE DEMONSTRATIVO</span></div>
+          <div class="demo-body">
+            <div class="heatmap-card">
+              <div class="legend"><b>Efetividade dos controles</b><span><i class="dot effective"></i> Efetivo</span><span><i class="dot partial"></i> Parcialmente efetivo</span><span><i class="dot ineffective"></i> Ineficiente</span></div>
+              <div class="heatmap-wrap">
+                <div class="axis-y">PROBABILIDADE</div>
+                <div class="rows-labels"><span>Quase certo</span><span>Provável</span><span>Possível</span><span>Pouco provável</span><span>Raro</span></div>
+                <div class="risk-grid" id="risk-grid" aria-label="Matriz de riscos com cinco níveis de probabilidade e impacto"></div>
+              </div>
+              <div class="axis-x-labels"><span></span><span></span><span>Insignificante</span><span>Mínimo</span><span>Moderado</span><span>Elevado</span><span>Extremo</span></div>
+              <div class="axis-x">IMPACTO</div>
+              <ul class="process-list" id="process-list" aria-label="Lista de processos demonstrativos"></ul>
+            </div>
+            <aside class="detail-panel" aria-label="Indicadores do processo selecionado" aria-live="polite">
+              <div class="detail-title">Processo selecionado</div><div class="process-name" id="process-name">—</div>
+              <div class="stats">
+                <div class="stat critical" id="risk-level-box"><span>Nível de risco</span><strong id="risk-level">—</strong></div>
+                <div class="stat"><span>Score</span><strong id="risk-score">—</strong></div>
+                <div class="stat"><span>Exposição</span><strong id="risk-exposure">—</strong></div>
+                <div class="stat control-bad" id="control-box"><span>Controle</span><strong id="risk-control">—</strong></div>
+                <div class="stat"><span>Apontamentos</span><strong id="risk-findings">—</strong></div>
+                <div class="stat"><span>Planos concluídos</span><strong id="risk-plans">—</strong></div>
+                <div class="stat"><span>Gestor</span><strong id="risk-manager">—</strong></div>
+                <div class="stat"><span>Última auditoria</span><strong id="risk-date">—</strong></div>
+              </div>
+              <p class="demo-note"><strong>Observação:</strong> a pontuação apresentada é uma simulação baseada em probabilidade × impacto. Critérios e faixas de risco precisam ser definidos na metodologia adotada pela organização.</p>
+            </aside>
+          </div>
+        </div>
+        <p style="font-size:13px;color:#596f79;margin:22px 0 10px;font-weight:700">Campos da visão demonstrada</p>
+        <div class="field-wrap"><span class="field required">Processo</span><span class="field required">Probabilidade</span><span class="field required">Impacto</span><span class="field">ID_Processo</span><span class="field">Exposição_R$</span><span class="field">Controle</span><span class="field">Apontamentos</span><span class="field">Planos_%</span><span class="field">Gestor</span><span class="field">Última_Auditoria</span></div>
+        <p style="font-size:11px;color:#5b707c;margin-top:12px">Campos destacados em verde representam o mínimo conceitual para construir a matriz: processo, probabilidade e impacto. Os demais enriquecem a análise.</p>
+      </div>
+    </section>
+
+    <section class="section" id="metodologia" aria-labelledby="metodo-title">
+      <div class="container section-split">
+        <div><p class="overline">Método de trabalho</p><h2 id="metodo-title">Auditoria baseada em riscos, sustentada por dados.</h2><p class="section-lead">Uma abordagem que combina avaliação de riscos, extração de dados, testes de auditoria e visualização executiva. O MREx25 atua na <strong>camada de apresentação no Power BI</strong>.</p><p style="color:#4c6672;font-size:14px">O objetivo é apoiar a avaliação do ambiente de controle, a identificação de exceções, a priorização de riscos e o acompanhamento da resposta da gestão.</p><div class="note"><strong>Importante:</strong> SQL e ACL Analytics compõem o fluxo analítico descrito, mas não representam integração nativa do MREx25 com bancos de dados ou com o ACL.</div></div>
+        <div class="workflow" aria-label="Fluxo de dados para auditoria">
+          <article class="step"><div class="step-index">01</div><div><h3>Fontes de dados e SQL</h3><p>Consultas, extrações, validações e conciliações em bases estruturadas, respeitando controles de acesso e qualidade dos dados.</p></div></article>
+          <article class="step"><div class="step-index">02</div><div><h3>ACL Analytics e testes</h3><p>Testes de integridade, duplicidade, conformidade, exceções, trilhas e sinais de alerta conforme os objetivos da auditoria.</p></div></article>
+          <article class="step"><div class="step-index">03</div><div><h3>Modelagem no Power BI</h3><p>Organização e tratamento das bases, construção das medidas e aplicação das regras de classificação de riscos.</p></div></article>
+          <article class="step"><div class="step-index">04</div><div><h3>MREx25 e comunicação executiva</h3><p>Apresentação da matriz, da exposição e dos atributos dos processos para apoiar acompanhamento e priorização.</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section light" id="funcionalidades" aria-labelledby="func-title">
+      <div class="container"><div class="section-head"><p class="overline">Recursos e visão evolutiva</p><h2 id="func-title">Da identificação ao tratamento dos riscos.</h2><p class="section-lead">O produto está em evolução. Os itens abaixo apresentam a proposta funcional do MREx25, sujeitos à validação nas versões publicadas.</p></div>
+        <div class="two-col">
+          <article class="feature"><span class="feature-icon">5×5</span><h3>Matriz de probabilidade e impacto</h3><p>Visualização de processos posicionados na matriz, com indicação de criticidade e seleção para consulta aos atributos.</p></article>
+          <article class="feature"><span class="feature-icon">R$</span><h3>Exposição financeira</h3><p>Leitura complementar da exposição associada aos processos para contextualizar a priorização de auditorias.</p></article>
+          <article class="feature"><span class="feature-icon">✓</span><h3>Efetividade de controles</h3><p>Categorização visual de controles efetivos, parcialmente efetivos e ineficientes.</p></article>
+          <article class="feature"><span class="feature-icon">↗</span><h3>Indicadores para governança</h3><p>Painel contextual com apontamentos, planos concluídos, gestores e histórico de auditoria, quando disponíveis nos dados.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contato" aria-labelledby="contato-title">
+      <div class="container">
+        <div class="cta"><div><p class="overline" style="color:#8ceac4">MVS · MREx25</p><h2>Uma nova perspectiva para a matriz de riscos.</h2><p>Conheça a proposta do visual, acompanhe o desenvolvimento e consulte os canais oficiais do projeto.</p></div><a class="button" href="https://github.com/mvsrisk/mrex25-site" target="_blank" rel="noopener noreferrer">Ver projeto no GitHub <span aria-hidden="true">↗</span></a></div>
+        <div style="padding-top:54px" class="section-head"><p class="overline">Contato e documentação</p><h2 id="contato-title">Informações do projeto</h2><p class="section-lead">Canais institucionais serão ampliados quando o domínio e o e-mail profissional estiverem configurados.</p></div>
+        <div class="contact-grid">
+          <div class="contact-card"><span class="mini">Desenvolvedor</span><h3>Marcos Vinicius Silva</h3><p>Publicador / marca: MVS. Projeto independente de visual personalizado para Power BI.</p></div>
+          <div class="contact-card"><span class="mini">Repositório do site</span><h3><a class="textlink" href="https://github.com/mvsrisk/mrex25-site" target="_blank" rel="noopener noreferrer">github.com/mvsrisk/mrex25-site ↗</a></h3><p>Informações públicas, acompanhamento e conteúdo institucional do MREx25.</p></div>
+          <div class="contact-card"><span class="mini">Suporte e e-mail</span><h3>Em configuração</h3><p>O endereço de suporte com domínio próprio será informado nesta página assim que estiver ativo.</p></div>
+        </div>
+        <div id="privacidade" class="note" style="margin-top:28px"><strong>Nota de privacidade e publicação:</strong> este site demonstrativo não inclui formulários, trackers analíticos ou conexão com dados corporativos. A hospedagem pode registrar informações técnicas de acesso segundo as políticas do GitHub. A política definitiva de privacidade, os termos de licença e os canais de suporte do produto devem ser publicados e revisados antes de sua distribuição comercial ou submissão à AppSource.</div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="container footer-row"><div><strong>MVS · MREx25</strong><br>© <span id="year">2026</span> MVS · Desenvolvimento independente.</div><div class="footer-links"><a href="#produto">Produto</a><a href="#demonstracao">Demonstração</a><a href="#privacidade">Privacidade</a><a href="#contato">Contato</a></div></div></footer>
+
+  <script>
+    'use strict';
+    // Dados 100% fictícios: substitua por informações autorizadas antes de divulgar exemplos reais.
+    const processes = [
+      {id:1,name:'Gestão de Materiais',prob:3,impact:5,control:'Parcialmente efetivo',controlClass:'parcial',exposure:8400000,findings:8,plans:40,manager:'Gestor A',date:'12/02/2026'},
+      {id:2,name:'Credenciamento de Rede',prob:2,impact:3,control:'Parcialmente efetivo',controlClass:'parcial',exposure:3100000,findings:3,plans:70,manager:'Gestor B',date:'20/01/2026'},
+      {id:3,name:'Faturamento Assistencial',prob:4,impact:5,control:'Ineficiente',controlClass:'ineficiente',exposure:12500000,findings:10,plans:25,manager:'Gestor C',date:'18/03/2026'},
+      {id:4,name:'Suprimentos e Compras',prob:3,impact:3,control:'Efetivo',controlClass:'efetivo',exposure:5800000,findings:4,plans:80,manager:'Gestor D',date:'10/02/2026'},
+      {id:5,name:'Regulação de Sinistros',prob:5,impact:4,control:'Ineficiente',controlClass:'ineficiente',exposure:22000000,findings:12,plans:30,manager:'Gestor E',date:'05/03/2026'}
+    ];
+    const colors = [
+      ['green','yellow','red','darkred','darkred'],
+      ['green','yellow','red','red','darkred'],
+      ['green','yellow','yellow','red','red'],
+      ['green','green','yellow','yellow','yellow'],
+      ['green','green','green','yellow','yellow']
+    ];
+    const list = document.getElementById('process-list');
+    const grid = document.getElementById('risk-grid');
+    const money = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:1,maximumFractionDigits:1});
+    function moneyShort(amount) { return money.format(amount/1000000)+' mi'; }
+    function level(score) { return score>=20?'Crítico':score>=12?'Alto':score>=6?'Moderado':'Baixo'; }
+    function selectProcess(id) {
+      const p=processes.find(item=>item.id===id);
+      if(!p) return;
+      document.getElementById('process-name').textContent=p.name;
+      document.getElementById('risk-score').textContent=String(p.prob*p.impact);
+      document.getElementById('risk-level').textContent=level(p.prob*p.impact);
+      document.getElementById('risk-exposure').textContent=moneyShort(p.exposure);
+      document.getElementById('risk-control').textContent=p.control;
+      document.getElementById('risk-findings').textContent=String(p.findings);
+      document.getElementById('risk-plans').textContent=new Intl.NumberFormat('pt-BR',{style:'percent',minimumFractionDigits:1}).format(p.plans/100);
+      document.getElementById('risk-manager').textContent=p.manager;
+      document.getElementById('risk-date').textContent=p.date;
+      const riskBox=document.getElementById('risk-level-box');
+      riskBox.className='stat '+(p.prob*p.impact>=20?'critical':(p.prob*p.impact>=12?'attention':''));
+      const controlBox=document.getElementById('control-box');
+      controlBox.className='stat '+(p.controlClass==='ineficiente'?'control-bad':(p.controlClass==='parcial'?'attention':''));
+      document.querySelectorAll('.risk-cell').forEach(cell=>{
+        const current=Number(cell.dataset.process)===id;
+        cell.classList.toggle('selected',current);
+        if(cell.dataset.process) cell.setAttribute('aria-pressed',current?'true':'false');
+      });
+      document.querySelectorAll('.process-list button').forEach(button=>{
+        const current=Number(button.dataset.process)===id;
+        button.classList.toggle('active',current);
+        button.setAttribute('aria-current',current?'true':'false');
+      });
+    }
+    for(let row=0;row<5;row++) {
+      for(let col=0;col<5;col++) {
+        const p=processes.find(item=>item.prob===5-row && item.impact===col+1);
+        const element=document.createElement(p?'button':'div');
+        element.className='risk-cell '+colors[row][col];
+        if(p) {
+          element.type='button';
+          element.dataset.process=String(p.id);
+          element.setAttribute('aria-label',`Processo ${p.id}: ${p.name}. Probabilidade ${p.prob}, impacto ${p.impact}, controle ${p.control}.`);
+          const bubble=document.createElement('span');
+          bubble.className='risk-point '+p.controlClass;
+          bubble.textContent=String(p.id);
+          element.appendChild(bubble);
+          element.addEventListener('click',()=>selectProcess(p.id));
+        } else {
+          element.setAttribute('aria-hidden','true');
+        }
+        grid.appendChild(element);
+      }
+    }
+    processes.forEach(p=>{
+      const item=document.createElement('li');
+      const button=document.createElement('button');
+      button.type='button';
+      button.dataset.process=String(p.id);
+      button.textContent=`${p.id} – ${p.name} | ${moneyShort(p.exposure)}`;
+      button.addEventListener('click',()=>selectProcess(p.id));
+      item.appendChild(button);
+      list.appendChild(item);
+    });
+    selectProcess(5);
+    const mobileButton=document.getElementById('mobile-menu');
+    const navLinks=document.getElementById('nav-links');
+    mobileButton.addEventListener('click',()=>{
+      const expanded=mobileButton.getAttribute('aria-expanded')==='true';
+      mobileButton.setAttribute('aria-expanded',String(!expanded));
+      mobileButton.setAttribute('aria-label',expanded?'Abrir menu':'Fechar menu');
+      navLinks.classList.toggle('open',!expanded);
+    });
+    navLinks.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+      navLinks.classList.remove('open');
+      mobileButton.setAttribute('aria-expanded','false');
+      mobileButton.setAttribute('aria-label','Abrir menu');
+    }));
+    document.getElementById('year').textContent=String(new Date().getFullYear());
+  </script>
+</body>
+</html>
